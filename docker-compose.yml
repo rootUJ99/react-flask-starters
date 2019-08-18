@@ -1,0 +1,32 @@
+version: '3.7'
+services:
+  users: 
+    build: 
+      context: ./server
+      dockerfile: ./Dockerfile
+    volumes:
+      - './server/service:/opt/server/service'
+    ports:
+      - 5001:5000
+    environment:
+      - FLASK_APP=service/__init__.py
+      - FLASK_ENV=development
+      - APP_SETTINGS=service.config.DevelopmentConfig
+      - DATABASE_URL=mysql://user:usertest@users-db:3306/users-db # new
+      - DATABASE_TEST_URL=mysql://user:usertest@users-db:3306/users_test  # new
+    depends_on: 
+      - users-db
+  users-db:
+    build:
+      context: ./server/service/db
+      dockerfile: ./Dockerfile
+    ports:
+      - 3307:3306
+    environment:
+      - MYSQL_DATABASE=users-db
+      # So you don't have to use root, but you can if you like
+      - MYSQL_USER=user
+      # You can use whatever password you like
+      - MYSQL_PASSWORD=usertest
+      # Password for root access
+      - MYSQL_ROOT_PASSWORD=toor
